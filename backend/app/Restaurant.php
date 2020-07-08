@@ -24,6 +24,11 @@ class Restaurant extends Model
         return $this->belongsToMany('App\Table')->withPivot('x', 'y','height','width', 'id');
     }
 
+    public function extras()
+    {
+        return $this->belongsToMany('App\Extra')->withPivot('x', 'y','height','width', 'id');
+    }
+
     public function payments()
     {
         return $this->belongsToMany('App\Payment');

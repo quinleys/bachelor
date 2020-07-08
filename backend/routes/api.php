@@ -32,7 +32,13 @@ Route::prefix('/restaurant')->group(function(){
     Route::get('/random', 'api\v1\restaurant\RestaurantController@random');
     Route::get('/{id}', 'api\v1\restaurant\RestaurantController@show');
 });
+Route::prefix('/table')->group(function(){
+    Route::get('/all', 'api\v1\table\TableController@index');
+});
 
+Route::prefix('/extra')->group(function(){
+    Route::get('/all', 'api\v1\extra\ExtraController@index');
+});
 Route::prefix('/reservation')->group(function(){
     Route::middleware('auth:api')->get('/all', 'api\v1\reservation\ReservationController@index');
     Route::middleware('auth:api')->get('/{id}', 'api\v1\reservation\ReservationController@show');

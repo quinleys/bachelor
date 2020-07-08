@@ -19,7 +19,7 @@ class TableController extends Controller
      */
     public function index()
     {
-        
+        return Table::all();
     }
 
     public function all($id)
@@ -30,9 +30,9 @@ class TableController extends Controller
         ->paginate(9);
         return $result; */
         
-        $results = Comment::where('restaurant_id',$id)->with('user')->get();
+       /*  $results = Comment::where('restaurant_id',$id)->with('user')->get();
 
-        return $results;
+        return $results; */
     }
 
     public function create()
