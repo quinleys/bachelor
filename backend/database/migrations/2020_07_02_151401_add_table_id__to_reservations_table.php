@@ -15,8 +15,8 @@ class AddTableIdToReservationsTable extends Migration
     {
         Schema::table('reservations', function (Blueprint $table) {
             
-            /* $table->bigInteger('table_id')->unsigned();
-            $table->foreign('table_id')->references('id')->on('tables'); */
+            $table->bigInteger('table_id')->unsigned();
+            $table->foreign('table_id')->references('id')->on('tables'); 
         });
     }
 

@@ -18,7 +18,14 @@ class FavoriteController extends Controller
         return Favorite::all();
     }
 
-
+    public function user ($id)
+    {
+        return Favorite::where('user_id',$id)->with('Restaurant')->paginate(3);
+    }
+    public function getAllFavorites($id)
+    {
+        return Favorite::where('user_id',$id)->with('Restaurant')->get();
+    }
     public function create()
     {
         //
@@ -43,7 +50,10 @@ class FavoriteController extends Controller
       return response(['favorite' => $newFavorite, 'succes' => 'Comment added']);
 
     }
+    public function getFavorited($id)
+    {
 
+    }
     /**
      * Display the specified resource.
      *

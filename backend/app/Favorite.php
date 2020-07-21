@@ -12,7 +12,7 @@ class Favorite extends Model
         ];
 
         public function restaurant(){
-            return $this->belongsTo('App\Restaurant');
+            return $this->belongsTo('App\Restaurant')->with('Category');
         }
 
         public function user(){

@@ -30,7 +30,7 @@ class CommentController extends Controller
         ->paginate(9);
         return $result; */
         
-        $results = Comment::where('restaurant_id',$id)->with('user')->get();
+        $results = Comment::where('restaurant_id',$id)->with('user')->paginate(5);
 
         return $results;
     }
@@ -48,6 +48,7 @@ class CommentController extends Controller
      */
     public function store(Request $request)
     {
+
         $validatedDate = $request->validate([
             'user_id' => 'required',
             'restaurant_id' => 'required',
@@ -56,7 +57,7 @@ class CommentController extends Controller
         ]);
 
       $newComment = Comment::create($validatedDate);
-    $id = $newComment->id;
+        $id = $newComment->id;
       $comment = Comment::where('id',$id)->with('user')->get();
       
       return $comment;

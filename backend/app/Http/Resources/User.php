@@ -16,4 +16,6 @@ class User extends JsonResource
     {
         return parent::toArray($request);
     }
+
+
 }

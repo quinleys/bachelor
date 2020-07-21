@@ -10,4 +10,9 @@ class Extra extends Model
     {
         return $this->belongsToMany('App\Restaurant');
     }
+
+    public function rooms()
+    {
+        return $this->belongsToMany('App\Room');
+    }
 }

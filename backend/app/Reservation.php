@@ -3,6 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\OpeningHours\OpeningHours;
 
 class Reservation extends Model
 {
@@ -12,7 +18,7 @@ class Reservation extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'restaurant_id', 'date', 'time', 'persons', 'table_id'
+        'user_id', 'restaurant_id', 'date', 'time', 'date_time','persons', 'table_id'
     ];
 
     public function restaurant(){
@@ -22,9 +28,10 @@ class Reservation extends Model
     public function user(){
         return $this->belongsTo('App\User');
     }
+    
 
-    public function table()
+/*     public function table()
     {
         return $this->belongsTo('App\Table');
-    }
+    } */
 }

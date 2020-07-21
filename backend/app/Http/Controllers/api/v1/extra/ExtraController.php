@@ -55,11 +55,11 @@ class ExtraController extends Controller
 
         ]);
 
-      $newComment = Comment::create($validatedDate);
-    $id = $newComment->id;
-      $comment = Comment::where('id',$id)->with('user')->get();
+        $newComment = Comment::create($validatedDate);
+        $id = $newComment->id;
+        $comment = Comment::where('id',$id)->with('user')->get();
       
-      return $comment;
+        return $comment;
 
     }
 

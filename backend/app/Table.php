@@ -10,9 +10,12 @@ class Table extends Model
     {
         return $this->belongsToMany('App\Restaurant');
     }
-
-    public function reservations()
+    public function layouts()
+    {
+        return $this->belongsToMany('App\Layout')->withPivot('x', 'y','height','width', 'id');
+    }
+     public function reservations()
     {
         return $this->belongsToMany('App\Reservation');
-    }
+    } 
 }

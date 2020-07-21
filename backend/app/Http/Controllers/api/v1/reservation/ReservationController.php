@@ -5,6 +5,13 @@ namespace App\Http\Controllers\api\v1\reservation;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Reservation;
+use Carbon\Carbon;
+use App\User;
+use App\Restaurant;
+
+use App\Mail\ReservationMail;
+use Illuminate\Support\Facades\Mail;
+
 class ReservationController extends Controller
 {
     /**
@@ -22,9 +29,23 @@ class ReservationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function user($id){
+    public function user($id)
+    {
 
-        return Reservation::with('Restaurant')->where('user_id', $id)->get() ;
+        $allreservations = Reservation::with('Restaurant')->where('user_id', $id)->get();
+        $futurereservations = $allreservations->where('date_time', '>' , Carbon::now());
+        $pastreservations = $allreservations->where('date_time', '<' , Carbon::now());
+        return response()->json(['all'=> $allreservations , 'past' => $pastreservations,'future' => $futurereservations]);
+    }
+    public function past($id)
+    {
+        $allreservations = Reservation::with('Restaurant')->where('user_id', $id)->where('date_time', '<' , Carbon::now())->paginate(3);
+        return $allreservations;
+    }
+    public function future($id)
+    {
+        $allreservations = Reservation::with('Restaurant')->where('user_id', $id)->where('date_time', '>' , Carbon::now())->paginate(3);
+        return $allreservations;
     }
     public function create()
     {
@@ -46,14 +67,36 @@ class ReservationController extends Controller
             'time' => 'required',
             'persons' => 'required',
             'table_id' => 'required',
+            'table_pivot_id' => 'required'
         ]);
 
-        $reservation = Reservation::create($validatedDate);
+        $reservation = new Reservation;
 
+        $reservation->user_id = $request->user_id;
+        $reservation->restaurant_id = $request->restaurant_id;
+        $reservation->date = $request->date;
+        $reservation->time = $request->time;
+        $reservation->persons = $request->persons;
+        $reservation->table_id = $request->table_id;
+        $reservation->date_time = $request->date_time;
+        $reservation->table_pivot_id = $request->table_pivot_id;
+
+        $reservation->save();
+
+        $user = User::find($request->user_id);
+        $restaurant = Restaurant::find($request->restaurant_id);
+
+        Mail::to($user->email)->send(new ReservationMail($user, $reservation, $restaurant));
         return response(['reservation' => $reservation]);
 
     }
-
+    public function getWeeklyReservations ($id) 
+    {
+        Carbon::setWeekStartsAt(Carbon::SUNDAY);
+        Carbon::setWeekEndsAt(Carbon::SATURDAY);
+        /* return Carbon::now()->endOfWeek(); */
+        return Reservation::with('Restaurant')->where('restaurant_id', $id)->whereBetween('date_time', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get() ;
+    }
     /**
      * Display the specified resource.
      *

@@ -21,7 +21,7 @@ class UserController extends Controller
         return User::with('Reservations','Favorites')->get();
 
     }
-    
+
     /**
      * Show the form for creating a new resource.
      *
@@ -55,7 +55,7 @@ class UserController extends Controller
         $user = User::with('Reservations')->whereIn('id', $ids)->get();
         new UserResource($user); */
 
-        return User::with('Reservations','Favorites')->find($id);
+        return User::with('Reservations','Favorites','Restaurant')->find($id);
 
     }
 

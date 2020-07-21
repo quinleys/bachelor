@@ -12,6 +12,9 @@ class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
+    protected $appends = [
+        'restaurant',
+    ];
     /**
      * The attributes that are mass assignable.
      *
@@ -38,7 +41,11 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    
+
+    public function restaurant(){
+        return $this->hasOne('App\Restaurant');
+    }
+
     public function reservations(){
         return $this->hasMany('App\Reservation');
     }
@@ -61,5 +68,25 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Favorite');
     }
+    public function social()
+    {
+        return $this->hasMany('App\UserSocial', 'user_id','id');
+    }
+    public function getRestaurantAttribute()
+    {
 
+            
+            $restaurant = $this->restaurant()->where('user_id',$this->id)->pluck('id');
+            if (!$restaurant->isEmpty()){
+                return $restaurant;
+            
+            return false; 
+    
+    }
+        
+    }
+    public function hasSocialLinked($service)
+    {
+        return (bool) $this->social->where('service',$service)->count();
+    }
 }
