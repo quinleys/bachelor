@@ -12,7 +12,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(UserSeeder::class);
+        $this->call(TableSeeder::class);
+        $this->call(ExtraSeeder::class);
+        $this->call(CategorySeeder::class);
+        $this->call(PaymentSeeder::class);
+        $this->call(FacilitySeeder::class);
+        $this->call(PriceSeeder::class);
+        
+        $this->call(UserSeeder::class);
+
+        $this->call(RestaurantSeeder::class);
+        $this->call(LayoutSeeder::class);
+        $this->call(RoomSeeder::class);
+
+        
 /*          DB::table('users')->insert([
             'name' => Str::random(10),
             'email' => 'test'.'@gmail.com',
@@ -38,7 +51,7 @@ class DatabaseSeeder extends Seeder
             'persons' => 3,
             "table_id" => 1
         ]); */
-        DB::table('restaurants')->insert([
+        /* DB::table('restaurants')->insert([
             'title' => Str::random(10),
             'description' => Str::random(10),
             'address' => Str::random(10),
@@ -58,7 +71,7 @@ class DatabaseSeeder extends Seeder
                     '12-25'      => ['09:00-12:00'],   // Recurring on each 25th of December
                 ],
             ]),
-        ]);
+        ]); */
         
         /* DB:table('tables')->insert([
             'persons' => 2,

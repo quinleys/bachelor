@@ -91,6 +91,8 @@ class Restaurant extends Model
         return $this->hasMany('App\Favorite');
     }
 
+ 
+
     public function getFavoritedAttribute()
     {
         $user = auth()->guard('api')->user();

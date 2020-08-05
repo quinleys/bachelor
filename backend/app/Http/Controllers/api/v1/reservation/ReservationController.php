@@ -10,6 +10,7 @@ use App\User;
 use App\Restaurant;
 
 use App\Mail\ReservationMail;
+use App\Mail\CancelEmail;
 use Illuminate\Support\Facades\Mail;
 
 class ReservationController extends Controller
@@ -87,6 +88,11 @@ class ReservationController extends Controller
         $restaurant = Restaurant::find($request->restaurant_id);
 
         Mail::to($user->email)->send(new ReservationMail($user, $reservation, $restaurant));
+        
+       /*  if($restaurant->contactemail){
+            Mail::to($restaurant->contactemail)->send(new ReservationMail($user, $reservation, $restaurant));
+        } */
+
         return response(['reservation' => $reservation]);
 
     }
@@ -139,6 +145,17 @@ class ReservationController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $reservation = Reservation::findOrFail($id);
+        $reservation->delete();
+        $user = User::find($reservation->user_id);
+        $restaurant = Restaurant::find($reservation->restaurant_id);
+
+        Mail::to($user->email)->send(new CancelEmail($user,$reservation,$restaurant));
+
+        if($restaurant->contactemail){
+            Mail::to($restaurant->contactemail)->send(new CancelEmail($user,$reservation,$restaurant));
+        }
+        
+        return $reservation;
     }
 }

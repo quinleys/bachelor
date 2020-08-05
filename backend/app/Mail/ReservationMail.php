@@ -24,11 +24,11 @@ class ReservationMail extends Mailable
     public $reservation;
     public $restaurant;
 
-    public function __construct(User $user, Reservation $reservation, Restaurant $restaurant)
+    public function __construct( User $user, Reservation $reservation, Restaurant $restaurant )
     {
         $this->user = $user;
         $this->reservation = $reservation;
-        $this->restaurant = $restaurant;
+        $this->restaurant = $restaurant; 
     }
 
     /**
@@ -38,6 +38,7 @@ class ReservationMail extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.reservation');
+        
+        return $this->markdown('emails.reservation')->subject('Reservation confirmation');
     }
 }

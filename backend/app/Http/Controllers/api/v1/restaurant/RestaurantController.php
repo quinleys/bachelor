@@ -20,6 +20,8 @@ use Spatie\OpeningHours\OpeningHours;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+
 
 class FiltersDay implements Filter
 {
@@ -29,13 +31,14 @@ class FiltersDay implements Filter
 
         // get all restaurants 
         $restaurants = \DB::table('restaurants')->select('openinghours','id')->get();
-        
+
+        $carbon_date = Carbon::parse($value);
 
         foreach ($restaurants as $restaurant) {
             $array = json_decode($restaurant->openinghours, true);
             $openingHours = OpeningHours::create($array[0]);
 
-            if($openingHours->isOpenOn($value)){
+            if($openingHours->isOpenAt($carbon_date)){
                 
                 $newCompete = array('id'=> $restaurant->id);
                 // save all restaurants that are open
@@ -44,25 +47,12 @@ class FiltersDay implements Filter
             }
            
         }
-
-        return $query->findMany($restaurantsOpen);
-
-      /*  if($restaurantsOpen){
-        
-           // foreach all open restaurants
-            foreach ($restaurantsOpen as $resto) {
-                
-                return $query->where('id', $resto['id']);
-                dd($query);
-                $offers->push(\DB::table('restaurants')->where('id', $resto['id'])->get());
-                 
-                
-            }
-       }
-       
-       /* $offers = $offers->flatten(); */
-    
-      /*  return $offers;  */
+        if(count($restaurantsOpen) > 0){
+            return $query->findMany($restaurantsOpen);
+        }else{
+            // return nothing if no restaurant found
+       return $query->where('id', 10000000);
+    }
     }
 }
 class FiltersDate implements Filter
@@ -262,48 +252,11 @@ class FiltersAvailability implements Filter {
 
         $query->whereHas('rooms', function (Builder $query) use ($value) {
         
-            return $query;
+           $query->where('active', 1);
         
         });
 
-        /* 
-        $query->whereHas('rooms' , function (Builder $query) use ($value) {
-            
-            
-            $restaurants = Restaurant::whereHas('rooms')->get();
-         
-            $persons = $value[1];
-            $date = $value[0];
-            
-            $carbon_date = Carbon::parse($date);
-            $carbon_justdate = Carbon::parse($date)->toDateString();
-            $carbon_TimeLate = Carbon::parse($date)->addHours(2);
-            $carbon_TimeEarly = Carbon::parse($date)->subHours(2);
 
-            $restaurantsOpen = array();
-            
-                foreach($restaurants as $restaurant){
-                
-                    $array = json_decode($restaurant->openinghours, true);
-                    $openingHours = OpeningHours::create($array[0]);
-    
-                    if($openingHours->isOpenAt(new DateTime($carbon_date))){
-                        if($query->find(, $restaurant->id)){
-                            $newCompete = array($restaurant);
-                            array_push($restaurantsOpen, $newCompete);
-                        }
-                        
-                        
-                    }
-                   
-                }  
-               
-            
-            
-            return $query->findMany($restaurantsOpen);
-    
-        });
-        */
     } 
     
 }
@@ -327,7 +280,7 @@ class FiltersRating implements Filter{
     public function __invoke(Builder $query, $value, string $property)
     {
         $query->whereHas('ratings', function (Builder $query) use ($value) {
-            $query->having('average_rating')->where('average_rating',$value);
+            $query->where('ratings.rating', '>=' , $value );
            
             
             
@@ -336,30 +289,11 @@ class FiltersRating implements Filter{
     }
     
 }
-class FiltersPrice implements Filter{
 
-    public function __invoke(Builder $query, $value, string $property)
-    {
-        $query->whereHas('price', function (Builder $query) use ($value) {
-            
-            if($value == 'Goedkoop'){
-                $price = 1;
-            }if($value == 'Normaal'){
-                $price = 2;
-            }if($value == 'Duur'){
-                $price = 3;
-            }
-           
-            $query->where('price_id', '=', $price);
-            
-        });
-
-    }
-    
-}
 
 class RestaurantController extends Controller
 {
+   
 
     /**
      * Display a listing of the resource.
@@ -368,10 +302,10 @@ class RestaurantController extends Controller
      */
     public function index()
     {
-        
+        // allow includes van de querybuilder kan elke problemen oplossen
         $result = QueryBuilder::for(Restaurant::class)
-        ->with('Category','Ratings', 'Price')
-        ->allowedFilters(['category.title','title','address','ratings.average_rating' ,AllowedFilter::custom('day', new FiltersDay),AllowedFilter::custom('date', new FiltersDate),AllowedFilter::custom('date_time', new FiltersDateTime),AllowedFilter::custom('rating', new FiltersRating),AllowedFilter::custom('time', new FiltersTime), AllowedFilter::custom('price', new FiltersPrice),AllowedFilter::custom('availability', new FiltersAvailability),'layouts.tables.persons','payments.title','facilities.title','reservations.time'])
+        ->with('Category','Ratings', 'Price','Facilities')
+        ->allowedFilters(['category.title','title','address','ratings.average_rating', 'price.title', AllowedFilter::custom('day', new FiltersDay),AllowedFilter::custom('date', new FiltersDate),AllowedFilter::custom('date_time', new FiltersDateTime),AllowedFilter::custom('rating', new FiltersRating),AllowedFilter::custom('time', new FiltersTime),AllowedFilter::custom('availability', new FiltersAvailability),'layouts.tables.persons','payments.title','facilities.title','reservations.time'])
         ->allowedSorts(['title','price_id'])
         ->paginate(10);
         return $result;
@@ -435,7 +369,9 @@ class RestaurantController extends Controller
      */
     public function show($id)
     {
-        return Restaurant::with('Tables','Category','Reservations','Ratings','Comments','Favorites', 'Price','Facilities','Payments')->find($id);
+        /* $restaurant = Restaurant::findOrfail($id);
+        return $restaurant; */
+        return Restaurant::with('Tables','Category','Reservations','Ratings','Comments','Favorites', 'Price','Facilities','Payments')->findOrFail($id);
     }
     
     public function filterReservation(Request $request)
@@ -520,7 +456,7 @@ class RestaurantController extends Controller
                        
                     }
                     }else{
-                        
+                        // no reservations
                         $rooms = Room::where('restaurant_id','=',$restaurant->id)->where('active', true)->with('Layout')->with('Layout.Tables')->get();
                         $returnTables = array();
                         
@@ -531,7 +467,8 @@ class RestaurantController extends Controller
                                     
                                     foreach($tables as $table){
                                             if($table->persons == $persons){
-                                                $newCompete = array($table);
+                                                $freetable = Layout::find($room->layout->id)->tables()->wherePivot('id', $table->pivot->id)->get();
+                                                $newCompete = array($freetable);
                                                 array_push($returnTables, $newCompete);
                                             }
                                             /* return $table; */
@@ -539,10 +476,10 @@ class RestaurantController extends Controller
                                     }
                                     if(!$reservations->isEmpty()){
                                        
-                                        $newCompete = array('freetables' => $freetables, 'reservations' => $reservations);
+                                        $newCompete = array('freetables' => $returnTables, 'reservations' => $reservations);
                                         array_push($allRooms, $newCompete);
                                     }else{
-                                        $newCompete = array('freetables' => $freetables, 'reservations' => 'no reservations');
+                                        $newCompete = array('freetables' => $returnTables, 'reservations' => 'no reservations');
                                         array_push($allRooms, $newCompete);
                                        
                                     }   
@@ -569,7 +506,8 @@ class RestaurantController extends Controller
                         $tables = Layout::find($room->layout->id)->tables()->get();
                         foreach($tables as $table){
                             if($table->persons == $persons){
-                                $newCompete = array($table);
+                                $freetable = Layout::find($room->layout->id)->tables()->wherePivot('id', $table->pivot->id)->get();
+                                $newCompete = array($freetable);
                                 array_push($freetables, $newCompete);
                             }
                             /* return $table; */
@@ -649,36 +587,255 @@ class RestaurantController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function uploadprimaryImg (Request $request, $id)
     {
+        
+        $request->validate([
+        'primary_img'     =>  'image|mimes:jpeg,png,jpg,gif|max:2048', 
+        ]); 
+        /* $validator = \Validator::make($request->all(), $request->rules());
+        
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()->all()]);
+        } */
+      
         $restaurant = Restaurant::findOrFail($id);
+           
+        if($request->primary_img){
+            Storage::delete("public/primary_imgs/". $restaurant->primary_img);
+            $filename  = time() . '.' . $request->primary_img->getClientOriginalExtension();
+            $path = $request->file('primary_img')->storeAs('public/primary_imgs', $filename);
+            $restaurant->primary_img = $filename;
+        
+        }
+        
+        $restaurant->save();
+
+        return $restaurant; 
+        
+    }
+    public function uploadImages (Request $request, $id)
+    {
+        
+        $request->validate([
+        'menus'     =>  'image|mimes:jpeg,png,jpg,gif|max:2048', 
+        'carousel' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]); 
+
+        /* $validator = \Validator::make($request->all(), $request->rules());
+        
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()->all()]);
+        } */
+      
+        $restaurant = Restaurant::findOrFail($id);
+         
+   
+        if($request->menus){
+          
+            if(strlen($restaurant->menus) > 4){
+                $names = json_decode($restaurant->menus);
+           
+                $filename  = time() . '.' . $request->menus->getClientOriginalExtension();
+                $path = $request->menus->storeAs('public/menus', $filename);
+                $newName = array("src" => $filename);
+                
+                array_push($names, $newName);  
+                
+                $restaurant->menus = $names;
+            }else{
+
+                $filename  = time() . '.' . $request->menus->getClientOriginalExtension();
+                $path = $request->menus->storeAs('public/menus', $filename);
+                $names = [];
+                
+                $newName = array("src" => $filename);
+                array_push($names, $newName);
+                /* array_push($names, $newName); */
+                
+                $restaurant->menus = $names; 
+            }
+            $restaurant->save();
+
+            return ['menus', $restaurant->menus];
+        }
+       
+        if($request->carousel){
+            if(strlen($restaurant->images) > 4){
+                $names = json_decode($restaurant->images);
+           
+                $filename  = time() . '.' . $request->carousel->getClientOriginalExtension();
+                $path = $request->carousel->storeAs('public/carousel', $filename);
+                $newName = array("src" => $filename);
+                
+                array_push($names, $newName);  
+                
+                $restaurant->images = $names;
+            }else{
+               
+                $filename  = time() . '.' . $request->carousel->getClientOriginalExtension();
+                $path = $request->carousel->storeAs('public/carousel', $filename);
+                $names = [];
+                
+                $newName = array("src" => $filename);
+                
+                array_push($names, $newName);
+                
+                $restaurant->images = $names; 
+            }
+           
+        }
+        $restaurant->save();
+
+        return ['images' , $restaurant->images ];  
+    }
+    public function deleteImage (Request $request, $id)
+    {
+        
+        $restaurant = Restaurant::findOrFail($id);
+         
+        
+        if($request->menus)
+        {
+            $newMenus = array();
+            $names = json_decode($restaurant->menus);
+            foreach($names as $name){
+                if($name->src !== $request->menus){
+                    $keepMenu = $name;
+                    array_push($newMenus, $keepMenu);
+                }
+            }
+            
+          $newArray = json_encode($names); 
+         
+            if(strlen($newArray) < 5){
+               
+                $restaurant->menus = [] ;
+                
+            }else{
+                $restaurant->menus = $newMenus;
+            }
+
+           
+            $restaurant->save();
+
+            Storage::delete("public/menus/". $request->menus);
+
+            return ['menus', $restaurant->menus];
+          
+        }
+        
+         
+        if($request->images)
+        {
+            $newMenus = array();
+            $names = json_decode($restaurant->images);
+            foreach($names as $name){
+                if($name->src !== $request->images){
+                    $keepMenu = $name;
+                    array_push($newMenus, $keepMenu);
+                }
+            }
+            
+          $newArray = json_encode($names); 
+         
+            if(strlen($newArray) < 5){
+               
+                $restaurant->images = [] ;
+                
+            }else{
+                $restaurant->images = $newMenus;
+            }
+
+           
+            $restaurant->save();
+
+            Storage::delete("public/carousel/". $request->images);
+
+            return ['images', $restaurant->images];
+          
+        }
+        
+    }
+    public function update(Request $request)
+    {
+        
+        $request->validate([
+            'title'              =>  'required',
+            'description'       => 'required',
+            'address'       => 'required',
+            'telephone'       => 'required',
+            'contactemail' => 'required',
+            'website' => 'required',
+            'category'       => 'required',
+            'price'       => 'required',
+            'payments'       => 'required',
+            'facilities'       => 'required',   
+            'openinghours' => 'required',
+        ]);     
+        
+        
+       
+
+        $restaurant = Restaurant::with('facilities')->with('payments')->with('category')->with('price')->findOrFail($request->id);
+        
+        /* $primary_img = $restaurant->primary_img; */
+
         /* return $request; */
 
         $restaurant->title = $request->title;
         $restaurant->description = $request->description;
-        
+       
         $restaurant->address = $request->address;
         $restaurant->telephone = $request->telephone;
         $restaurant->contactemail = $request->contactemail;
         $restaurant->website = $request->website;
-
+        
         $restaurant->category_id = $request->category;
         $restaurant->price_id = $request->price;
-
+        
+        $restaurant->openinghours = $request->openinghours;
+        //$restaurant->openinghours = $request->openinghours;
         $payments = $request->payments;
-        $facilities = $request->facilities;
+        $facilities = $request->facilities; 
 
-        $restaurant->payments()->detach();
-        $restaurant->facilities()->detach();
-
-        foreach ( $payments as $payment){
-            $restaurant->payments()->attach($payment['id']);
-        }
-
-       foreach ( $facilities as $facility){
-            $restaurant->facilities()->attach($facility['id']);
-        }  
        
+        
+        if($request->payments){
+            $restaurant->payments()->detach();
+            foreach ( $payments as $payment){
+                $restaurant->payments()->attach($payment['id']);
+            }
+        }
+        if($request->facilities){
+            $restaurant->facilities()->detach();
+
+            foreach ( $facilities as $facility){
+                $restaurant->facilities()->attach($facility['id']);
+            }   
+        }
+ 
+        
+       
+      
+/* 
+            if($request->primary_img){
+
+                $filenameWithExt = $request->file('primary_img')->getOriginalName();
+
+                $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+    
+                $extension = $request->file('primary_img')->getOriginalClientExtension();
+                // filename to store
+                $fileNameToStore = $filename.'_'.time().'.'.$extension;
+    
+                //upload
+                $path = $request->file('primary_img')->storeAs('public/primary_imgs', $fileNameToStore);
+            
+            }  */
+
+        
+
         $restaurant->save();
 
         return $restaurant;

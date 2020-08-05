@@ -60,11 +60,16 @@ Route::prefix('/dashboard')->group(function(){
         // dashboard routes
         Route::get('/{id}/layouts', 'api\v1\dashboard\DashboardController@layout');
         Route::get('/{id}/reservations', 'api\v1\dashboard\DashboardController@recentReservations');
+        Route::get('/{id}/comments', 'api\v1\dashboard\DashboardController@recentComments');
         Route::put('/room/update', 'api\v1\dashboard\DashboardController@updateroom');
         Route::put('/layout/update', 'api\v1\dashboard\DashboardController@updatelayout');
         Route::get('/room/{id}' ,'api\v1\dashboard\DashboardController@room');
         Route::get('/{id}/plattegrond', 'api\v1\dashboard\DashboardController@plattegrond');
-        Route::put('/{id}/restaurant/update' , 'api\v1\restaurant\RestaurantController@update'); 
+        Route::post('/{id}/restaurant/update' , 'api\v1\restaurant\RestaurantController@update'); 
+        Route::post('/{id}/restaurant/primaryimg' , 'api\v1\restaurant\RestaurantController@uploadprimaryImg');
+        Route::post('/{id}/restaurant/uploadimages' , 'api\v1\restaurant\RestaurantController@uploadImages');
+        Route::post('/{id}/restaurant/deleteimage' , 'api\v1\restaurant\RestaurantController@deleteImage');
+        Route::get('/{id}/rooms/active', 'api\v1\dashboard\DashboardController@getActiveRooms');
 });
 
 Route::prefix('/layout')->group(function(){
@@ -72,6 +77,7 @@ Route::prefix('/layout')->group(function(){
     Route::get('/all', 'api\v1\layout\LayoutController@index');
     Route::get('/{id}', 'api\v1\layout\LayoutController@show');
     Route::get('/id/{id}', 'api\v1\layout\LayoutController@specific');
+    Route::delete('/{id}/delete', 'api\v1\layout\LayoutController@destroy');
     Route::post('/store', 'api\v1\layout\LayoutController@store');
 });
 
@@ -79,6 +85,7 @@ Route::prefix('/reservation')->group(function(){
     Route::middleware('auth:api')->get('/all', 'api\v1\reservation\ReservationController@index');
     Route::middleware('auth:api')->get('/{id}', 'api\v1\reservation\ReservationController@show');
     Route::middleware('auth:api')->get('/user/{id}', 'api\v1\reservation\ReservationController@user');
+    Route::middleware('auth:api')->delete('/{id}/delete', 'api\v1\reservation\ReservationController@destroy');
     Route::middleware('auth:api')->get('/user/{id}/future', 'api\v1\reservation\ReservationController@future');
     Route::middleware('auth:api')->get('/user/{id}/past', 'api\v1\reservation\ReservationController@past');
     Route::middleware('auth:api')->post('/add', 'api\v1\reservation\ReservationController@store');
@@ -96,6 +103,11 @@ Route::prefix('/rating')->group(function(){
 Route::prefix('/category')->group(function(){
     Route::get('/all', 'api\v1\categories\CategoryController@index');
 });
+
+Route::prefix('/price')->group(function(){
+    Route::get('/all' , 'api\v1\prices\PriceController@index');
+});
+
 Route::prefix('/payment')->group(function(){
     Route::get('/all', 'api\v1\payments\PaymentController@index');
 });

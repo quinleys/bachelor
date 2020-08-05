@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api\v1\layout;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Layout;
+use App\Room;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
@@ -77,8 +78,8 @@ class LayoutController extends Controller
             /* var_dump($table); */
             $layout->tables()->attach($table['id'],["restaurant_id" => $request->restaurant_id,"x" => $table['x'], "y" => $table['y'],"width" => $table['width'] ,"height" => $table['height']]);
         }
-        
-        return api()->ok();
+        $returnLayout = Layout::where('id',$layout->id)->with('Tables')->with('Restaurant')->first();
+        return $returnLayout;
     }
 
     /**
@@ -93,7 +94,15 @@ class LayoutController extends Controller
     }
     public function specific($id)
     {
-        return Layout::with('tables')->with('room')->find($id);
+
+        $user = auth()->guard('api')->user();
+        $layout = Layout::where('id',$id)->with('Tables')->with('Restaurant')->first();
+        if($user->restaurant[0] == $layout->restaurant->id){
+            return $layout;
+        }else{
+            return 'Not allowed';
+        }
+
     }
     /**
      * Show the form for editing the specified resource.
@@ -126,6 +135,10 @@ class LayoutController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $layout = Layout::find($id);
+        Room::where('layout_id', $id)->update(['layout_id' => null]);
+        $layout->tables()->detach();
+        $layout->delete();
+        return $layout;
     }
 }

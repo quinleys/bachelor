@@ -13,7 +13,7 @@ class CreateUserSocialTable extends Migration
      */
     public function up()
     {
-        /* Schema::create('user_social', function (Blueprint $table) {
+         Schema::create('user_social', function (Blueprint $table) {
              $table->id();
             $table->string('social_id')->nullable();
             $table->string('service');
@@ -21,7 +21,7 @@ class CreateUserSocialTable extends Migration
 
             $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users');  
-        }); */
+        }); 
     }
 
     /**

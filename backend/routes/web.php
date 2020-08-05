@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Mail\WelcomeMail;
+use App\Mail\CancelEmail;
+use App\Mail\ReservationMail;
 use Illuminate\Support\Facades\Mail;
 /*
 |--------------------------------------------------------------------------
@@ -21,4 +23,14 @@ Route::get('/', function () {
 Route::get('/email', function(){
    
     return new WelcomeMail();
+});
+
+Route::get('/cancel', function(){
+
+    return new CancelEmail();
+});
+
+Route::get('/reservation', function(){
+
+    return new ReservationMail();
 });

@@ -14,8 +14,8 @@ class AddPriceIdToRestaurantTable extends Migration
     public function up()
     {
         Schema::table('restaurants', function (Blueprint $table) {
-/*             $table->bigInteger('price_id')->unsigned();
-            $table->foreign('price_id')->references('id')->on('prices'); */
+             $table->bigInteger('price_id')->unsigned();
+            $table->foreign('price_id')->references('id')->on('prices'); 
         });
     }
 

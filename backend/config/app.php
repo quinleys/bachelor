@@ -163,6 +163,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         Lecturize\Addresses\AddressesServiceProvider::class,
         Webpatser\Countries\CountriesServiceProvider::class,
+        FruitCake\Cors\CorsServiceProvider::class,
         /*
          * Package Service Providers...
          */

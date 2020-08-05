@@ -36,18 +36,21 @@ class LoginController extends Controller
     public function register(Request $request)
     {
         $validatedData = $request->validate([
-            'email' => 'required|string',
+            'email' => 'required|unique:users|email',
             'name' => 'required|string',
             'password' => 'required|confirmed',
         ]); 
 
         $user = User::create($validatedData);
         
-        if(!Auth::attempt($login)){
+        if(!Auth::attempt($validatedData)){
             return response (['message' => 'Invalid login credentials.']);
         }
+
         $accessToken = $user->createToken('authToken')->accessToken;
+
         Mail::to($user->email)->send(new WelcomeMail($user));
+
         return response(['user' => $user, 'access_token' => $accessToken]);
     }
 

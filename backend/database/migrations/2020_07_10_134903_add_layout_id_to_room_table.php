@@ -14,8 +14,8 @@ class AddLayoutIdToRoomTable extends Migration
     public function up()
     {
         Schema::table('rooms', function (Blueprint $table) {
-           /* $table->bigInteger('layout_id')->unsigned();
-            $table->foreign('layout_id')->references('id')->on('layouts');  */
+           $table->bigInteger('layout_id')->unsigned();
+            $table->foreign('layout_id')->references('id')->on('layouts');  
         });
     }
 

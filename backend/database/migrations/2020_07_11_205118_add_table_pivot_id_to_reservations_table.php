@@ -14,7 +14,7 @@ class AddTablePivotIdToReservationsTable extends Migration
     public function up()
     {
         Schema::table('reservations', function (Blueprint $table) {
-            /* $table->integer('table_pivot_id'); */
+             $table->integer('table_pivot_id'); 
         });
     }
 

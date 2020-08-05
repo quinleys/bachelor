@@ -9,6 +9,7 @@ use App\Room;
 use App\Layout;
 use App\Reservation;
 use App\Restaurant;
+use App\Comment;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
@@ -78,91 +79,54 @@ class DashboardController extends Controller
         
         if(!$reservations->isEmpty()){
           
-                $personreservations = Reservation::where('restaurant_id', $request->id)->where('date', $carbon_justdate )->whereBetween('time', [$carbon_TimeEarly,$carbon_TimeLate])->where('persons','=',$persons)->get();
                 $alltables = array();
-                if(!$personreservations->isEmpty()){
+      
                     if($restaurant->rooms){
                     $mytime = Carbon::now();
                     $rooms = Room::where('restaurant_id','=',$restaurant->id)->where('active', true)->with('Layout')->with('Layout.Tables')->get();
-                    if(!$rooms->isEmpty()){
-                        $allRooms = array();
-                                foreach($rooms as $room){
-                                    $returnTables = array();
-                                    $freetables = array();
-                        
-                                    $tables = Layout::find($room->layout->id)->tables()->get();
-                                    $personstables = $tables->where('persons','=', $persons);
-                                    
-                                    /* return $rooms; */
-                                    foreach ($personreservations as $reservation) {
-
-                                        foreach ($personstables as $key => $pick) { // Note: $key represents the current element's key so the first one will be 0, second one will be 1, etc.
-                                            // Do your comparison here
-                                            if ($reservation->table_pivot_id == $pick->pivot->id && $reservation->table_id == $pick->id) {
-                                                $personstables->forget($key);
-                                            }
-                                        }
-                                    }
-
-                                    foreach($personstables as $persontable){
-                                        $freetable = Layout::find($room->layout->id)->tables()->wherePivot('id', $persontable->pivot->id)->get();
-                                        $newCompete = array($freetable);
-                                        array_push($freetables, $newCompete);
-                                    }
-
-                                    $newCompete = array('freetables' => $freetables, 'reservations' => $reservations);
-                                    array_push($allRooms, $newCompete);
-                                   
-                                }
-                                
-                                return ['open', 'rooms' => $allRooms ];
-
-                            }else {
-                                return ['closed', 'Dit restaurant is momenteel niet beschikbaar!'];
-                            }
-                       
-                       
-                    }
-                    }else{
-                        
-                        $rooms = Room::where('restaurant_id','=',$restaurant->id)->where('active', true)->with('Layout')->with('Layout.Tables')->get();
-                        $returnTables = array();
-                        
                         if(!$rooms->isEmpty()){
                             $allRooms = array();
-                            foreach($rooms as $room){
-                                    $tables = Layout::find($room->layout->id)->tables()->get();
+                                    foreach($rooms as $room){
+                                        $returnTables = array();
+                                        $freetables = array();
+                            
+                                        $tables = Layout::find($room->layout->id)->tables()->get();
                                     
-                                    foreach($tables as $table){
-                                            if($table->persons == $persons){
-                                                $newCompete = array($table);
-                                                array_push($returnTables, $newCompete);
-                                            }
-                                            /* return $table; */
                                         
-                                    }
-                                    if(!$reservations->isEmpty()){
-                                       
+                                        /* return $rooms; */
+                                        foreach ($reservations as $reservation) {
+
+                                            foreach ($tables as $key => $pick ) { // Note: $key represents the current element's key so the first one will be 0, second one will be 1, etc.
+                                                // Do your comparison here
+                                                if ($reservation->table_pivot_id == $pick->pivot->id && $reservation->table_id == $pick->id) {
+                                                    $tables->forget($key);
+                                                }
+                                            }
+                                        }
+
+                                        foreach($tables as $table){
+                                            $freetable = Layout::find($room->layout->id)->tables()->wherePivot('id', $table->pivot->id)->get();
+                                            $newCompete = array($freetable);
+                                            array_push($freetables, $newCompete);
+                                        }
+
                                         $newCompete = array('freetables' => $freetables, 'reservations' => $reservations);
                                         array_push($allRooms, $newCompete);
-                                    }else{
-                                        $newCompete = array('freetables' => $freetables, 'reservations' => 'no reservations');
-                                        array_push($allRooms, $newCompete);
-                                       
-                                    }   
-
                                     
-                                }
-                                return ['open','rooms' => $allRooms ];
-                            }
-                             
+                                    }
+                                    
+                                return ['open', 'rooms' => $allRooms ];
+
+                        }else {
                             return ['closed', 'Dit restaurant is momenteel niet beschikbaar!'];
+                        }
+                       
+                       
                     }
-                
-            /*  return $restaurant; */
+                    
 
             // geen reservaties
-            } else {
+        } else {
 
                 $rooms = Room::where('restaurant_id','=',$restaurant->id)->where('active',true) ->with('Layout')->with('Layout.Tables')->get();
                 
@@ -172,14 +136,13 @@ class DashboardController extends Controller
                         $freetables = array();
                         $tables = Layout::find($room->layout->id)->tables()->get();
                         foreach($tables as $table){
-                            if($table->persons == $persons){
+                           
                                 $newCompete = array($table);
                                 array_push($freetables, $newCompete);
-                            }
-                            /* return $table; */
+
                             
                         }
-                        $newCompete = array('freetables' => $freetables, 'reservations' => 'no reservations');
+                        $newCompete = array('freetables' => $freetables, 'reservations' => 'geen reservaties');
                             
                         array_push($allRooms, $newCompete);
                     }
@@ -204,21 +167,53 @@ class DashboardController extends Controller
     {
         return Reservation::where('restaurant_id', $id)->orderBy('created_at', 'desc')->paginate(5);
     }
+    
+    public function recentComments($id)
+    {
+        return Comment::where('restaurant_id', $id)->orderBy('created_at', 'desc')->paginate(5);
+    }
 
     public function room($id)
     {
-    
-        $room = Room::where('id',$id)->with('Extras')->first();
-        return $room;
+        $user = auth()->guard('api')->user();
+        $room = Room::where('id',$id)->with('Extras')->with('Restaurant')->first();
+        if($user->restaurant[0] == $room->restaurant->id){
+            return $room;
+        }else{
+            return 'Not allowed';
+        }
+        
     }
 
     public function updateroom(Request $request)
     { 
+        
         $room = Room::find($request->id);
 
-        $room->title = $request->title;
-        $room->walls = $request->walls;
-
+        if($request->title){
+            $room->title = $request->title;
+        }
+        if($request->walls){
+            $room->walls = $request->walls;
+        }
+       
+        if($request->layout){
+            $room->layout_id = $request->layout;
+        }
+        
+        if($request->active){
+            
+            if($request->active == "true"){
+                
+                $room->active = true;
+            }else {
+                
+                $room->active = false;
+            }
+            
+            
+        }
+       
         $room->save();
 
         if($request->extras){
@@ -232,11 +227,16 @@ class DashboardController extends Controller
              }
         } 
 
+        $newRoom = Room::where('id',$request->id)->with('layout')->with('layout.tables')->with('extras')->first();
 
-        
-
-        return $room;
+        return $newRoom;
     }
+
+    public function getActiveRooms ($id) {
+        $rooms = Room::where('restaurant_id', $id)->where('active', true)->with('Layout')->with('Layout.Tables')->get();
+        return $rooms;
+    }
+
 
     public function updatelayout(Request $request)
     { 

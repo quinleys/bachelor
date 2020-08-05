@@ -13,7 +13,7 @@ class CreateExtraRoomTable extends Migration
      */
     public function up()
     {
-        /* Schema::create('extra_room', function (Blueprint $table) {
+         Schema::create('extra_room', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->bigInteger('restaurant_id')->unsigned();
@@ -26,7 +26,7 @@ class CreateExtraRoomTable extends Migration
             $table->integer('y');
             $table->integer('width');
             $table->integer('height'); 
-        }); */
+        }); 
     }
 
     /**
