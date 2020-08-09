@@ -56,7 +56,7 @@ class LoginController extends Controller
 
     public function redirect($service)
     {
-        
+
         return Socialite::driver($service)->stateless()->redirect();
     }
 
