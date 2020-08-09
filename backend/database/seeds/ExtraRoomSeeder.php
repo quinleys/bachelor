@@ -25,9 +25,19 @@ class ExtraRoomSeeder extends Seeder
             'restaurant_id' => '1',
             'extra_id' => '2',
             'room_id' => '2',
-            'x' => '900',
-            'y' => '900',
+            'x' => '0',
+            'y' => '0',
             'width' => '100',
+            'height' => '100',
+
+        ]);
+        DB::table('extra_room')->insert([
+            'restaurant_id' => '1',
+            'extra_id' => '4',
+            'room_id' => '2',
+            'x' => '300',
+            'y' => '0',
+            'width' => '400',
             'height' => '100',
 
         ]);

@@ -458,13 +458,13 @@ class RestaurantController extends Controller
                     }else{
                         // no reservations
                         $rooms = Room::where('restaurant_id','=',$restaurant->id)->where('active', true)->with('Layout')->with('Layout.Tables')->get();
-                        $returnTables = array();
+                       
                         
                         if(!$rooms->isEmpty()){
                             $allRooms = array();
                             foreach($rooms as $room){
                                     $tables = Layout::find($room->layout->id)->tables()->get();
-                                    
+                                    $returnTables = array();
                                     foreach($tables as $table){
                                             if($table->persons == $persons){
                                                 $freetable = Layout::find($room->layout->id)->tables()->wherePivot('id', $table->pivot->id)->get();
@@ -525,11 +525,11 @@ class RestaurantController extends Controller
                 
             }
           // openingsuren gesloten  
-        }else {
+        } else {
             return ['closed', 'nothing found'];
             }
             // geen restaurant
-        }else{
+        } else{
             return ['closed', 'nothing found'];
         }
 }

@@ -101,8 +101,8 @@ class LayoutTableSeeder extends Seeder
             'layout_id' => 2,
             'restaurant_id' => 1,
             'table_id' => 14,
-            "x" => 200,
-            "y" => 500,
+            "x" => 500,
+            "y" => 200,
             'width' => 150,
             'height' => 150
         ]);
