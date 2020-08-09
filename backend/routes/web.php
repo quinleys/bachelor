@@ -21,7 +21,7 @@ Route::get('/', function () {
 });
 
 Route::get('/email', function(){
-   
+
     return new WelcomeMail();
 });
 
@@ -34,3 +34,7 @@ Route::get('/reservation', function(){
 
     return new ReservationMail();
 });
+
+Route::get('/{path?}', function () {
+    return view('index');
+})->where('path', '^((?!api).)*$');

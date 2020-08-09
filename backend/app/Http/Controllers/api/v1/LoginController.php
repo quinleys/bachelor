@@ -16,19 +16,20 @@ class LoginController extends Controller
 {
 
 
-    public function login (Request $request){
+    public function login(Request $request)
+    {
         $login = $request->validate([
             'email' => 'required|string',
             'password' => 'required|string'
         ]);
 
-        if(!Auth::attempt($login)){
-            return response (['message' => 'Invalid login credentials.']);
+        if (!Auth::attempt($login)) {
+            return response(['message' => 'Invalid login credentials.']);
         }
 
         $accessToken = Auth::user()->createToken('authToken')->accessToken;
         $id = Auth::user()->id;
-        
+
         $user = User::findOrFail($id);
         return response(['user' => $user, 'access_token' => $accessToken]);
     }
@@ -39,12 +40,12 @@ class LoginController extends Controller
             'email' => 'required|unique:users|email',
             'name' => 'required|string',
             'password' => 'required|confirmed',
-        ]); 
+        ]);
 
         $user = User::create($validatedData);
-        
-        if(!Auth::attempt($validatedData)){
-            return response (['message' => 'Invalid login credentials.']);
+
+        if (!Auth::attempt($validatedData)) {
+            return response(['message' => 'Invalid login credentials.']);
         }
 
         $accessToken = $user->createToken('authToken')->accessToken;
@@ -56,7 +57,7 @@ class LoginController extends Controller
 
     public function redirect($service)
     {
-        
+
         return Socialite::driver($service)->stateless()->redirect();
     }
 
@@ -69,50 +70,49 @@ class LoginController extends Controller
     {
         try {
             $serviceUser = Socialite::driver($service)->stateless()->user();
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return ('invalid credentials');
         };
 
         $email = $serviceUser->getEmail();
         $user = $this->getExistingUser($serviceUser, $email, $service);
 
-        if(!$user){
+        if (!$user) {
             $user = User::create([
                 'name' => $serviceUser->getName(),
                 'email' => $email,
                 'password' => ''
             ]);
-           Mail::to($user->email)->send(new WelcomeMail($user)); 
-           
+            Mail::to($user->email)->send(new WelcomeMail($user));
+
         }
-        if($this->needsToCreateSocial($user, $service)){
+        if ($this->needsToCreateSocial($user, $service)) {
             UserSocial::create([
                 'user_id' => $user->id,
                 'service' => $service,
                 'social_id' => $serviceUser->getId(),
-                
+
             ]);
         };
-        
+
         Auth::loginUsingId($user->id);
 
         $accessToken = Auth::user()->createToken('authToken')->accessToken;
-        
-        
 
-        return redirect ('http://localhost:3000/google/callback' . '?token=' . $accessToken . '&id=' . $user->id . '&email='. $user->email);
-       /*  return response(['user' => $user, 'access_token' => $accessToken]); */
+        return redirect('/google/callback' . '?token=' . $accessToken . '&id=' . $user->id . '&email='. $user->email);
+        /*  return response(['user' => $user, 'access_token' => $accessToken]); */
         /* return response($user) */
         // $user->token;
     }
 
-    public function getExistingUser($serviceUser, $email, $service){
-        return User::where('email', $email)->with('Restaurant')->orWhereHas('social', function($q) use($serviceUser, $service){
-            $q->where('social_id', $serviceUser->getId())->where('service',$service);
+    public function getExistingUser($serviceUser, $email, $service)
+    {
+        return User::where('email', $email)->with('Restaurant')->orWhereHas('social', function ($q) use ($serviceUser, $service) {
+            $q->where('social_id', $serviceUser->getId())->where('service', $service);
         })->first();
     }
 
-        
+
     public function needsToCreateSocial($user, $service)
     {
         return !$user->hasSocialLinked($service);
