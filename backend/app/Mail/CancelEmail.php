@@ -25,11 +25,11 @@ class CancelEmail extends Mailable
     public $reservation;
     public $restaurant;
 
-    public function __construct(/* User $user, Reservation $reservation, Restaurant $restaurant */)
+    public function __construct(User $user, Reservation $reservation, Restaurant $restaurant )
     {
-        /* $this->user = $user;
+         $this->user = $user;
         $this->reservation = $reservation;
-        $this->restaurant = $restaurant; */
+        $this->restaurant = $restaurant; 
     }
 
     /**

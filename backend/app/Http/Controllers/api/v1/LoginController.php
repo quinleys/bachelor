@@ -98,9 +98,9 @@ class LoginController extends Controller
 
         $accessToken = Auth::user()->createToken('authToken')->accessToken;
         
-        
-
-        return redirect ('http://localhost:3000/google/callback' . '?token=' . $accessToken . '&id=' . $user->id . '&email='. $user->email);
+       /*  return ['user' => $user ];  */
+       /* */
+        return redirect ('/google/callback' . '?token=' . $accessToken . '&id=' . $user->id . '&email='. $user->email);
        /*  return response(['user' => $user, 'access_token' => $accessToken]); */
         /* return response($user) */
         // $user->token;

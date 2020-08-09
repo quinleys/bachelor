@@ -32,5 +32,14 @@ class ExtraSeeder extends Seeder
         DB::table('extras')->insert([
             'title' => 'Uitzicht',
         ]);
+        DB::table('extras')->insert([
+            'title' => 'Tuin',
+        ]);
+        DB::table('extras')->insert([
+            'title' => 'Vaas',
+        ]);
+        DB::table('extras')->insert([
+            'title' => 'Aquarium',
+        ]);
     }
 }

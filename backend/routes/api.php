@@ -31,10 +31,10 @@ Route::prefix('/user')->group( function() {
 
 Route::prefix('/restaurant')->group(function(){
     // dashboard routes 
-    Route::get('/dashboard/{id}', 'api\v1\restaurant\RestaurantController@dashboard');
-    Route::get('/dashboard/{id}/daily', 'api\v1\restaurant\RestaurantController@daily');
-    Route::get('/dashboard/{id}/weekly', 'api\v1\restaurant\RestaurantController@weekly');
-    Route::get('/dashboard/{id}/monthly', 'api\v1\restaurant\RestaurantController@monthly');
+    Route::middleware('auth:api')->get('/dashboard/{id}', 'api\v1\restaurant\RestaurantController@dashboard');
+    Route::middleware('auth:api')->get('/dashboard/{id}/daily', 'api\v1\restaurant\RestaurantController@daily');
+    Route::middleware('auth:api')->get('/dashboard/{id}/weekly', 'api\v1\restaurant\RestaurantController@weekly');
+    Route::middleware('auth:api')->get('/dashboard/{id}/monthly', 'api\v1\restaurant\RestaurantController@monthly');
 
     Route::get('/all', 'api\v1\restaurant\RestaurantController@index');
     Route::get('/random', 'api\v1\restaurant\RestaurantController@random');
@@ -52,33 +52,33 @@ Route::prefix('/room')->group(function(){
     Route::get('/all', 'api\v1\room\RoomController@index');
     Route::get('/{id}', 'api\v1\room\RoomController@show');
     Route::get('/id/{id}', 'api\v1\room\RoomController@specific');
-    Route::post('/store', 'api\v1\room\RoomController@store');
+    Route::middleware('auth:api')->post('/store', 'api\v1\room\RoomController@store');
 
-    Route::delete('/{id}/delete','api\v1\room\RoomController@destroy');
+    Route::middleware('auth:api')->delete('/{id}/delete','api\v1\room\RoomController@destroy');
 });
 Route::prefix('/dashboard')->group(function(){
         // dashboard routes
-        Route::get('/{id}/layouts', 'api\v1\dashboard\DashboardController@layout');
-        Route::get('/{id}/reservations', 'api\v1\dashboard\DashboardController@recentReservations');
-        Route::get('/{id}/comments', 'api\v1\dashboard\DashboardController@recentComments');
-        Route::put('/room/update', 'api\v1\dashboard\DashboardController@updateroom');
-        Route::put('/layout/update', 'api\v1\dashboard\DashboardController@updatelayout');
-        Route::get('/room/{id}' ,'api\v1\dashboard\DashboardController@room');
-        Route::get('/{id}/plattegrond', 'api\v1\dashboard\DashboardController@plattegrond');
-        Route::post('/{id}/restaurant/update' , 'api\v1\restaurant\RestaurantController@update'); 
-        Route::post('/{id}/restaurant/primaryimg' , 'api\v1\restaurant\RestaurantController@uploadprimaryImg');
-        Route::post('/{id}/restaurant/uploadimages' , 'api\v1\restaurant\RestaurantController@uploadImages');
-        Route::post('/{id}/restaurant/deleteimage' , 'api\v1\restaurant\RestaurantController@deleteImage');
-        Route::get('/{id}/rooms/active', 'api\v1\dashboard\DashboardController@getActiveRooms');
+        Route::middleware('auth:api')->get('/{id}/layouts', 'api\v1\dashboard\DashboardController@layout');
+        Route::middleware('auth:api')->get('/{id}/reservations', 'api\v1\dashboard\DashboardController@recentReservations');
+        Route::middleware('auth:api')->get('/{id}/comments', 'api\v1\dashboard\DashboardController@recentComments');
+        Route::middleware('auth:api')->put('/room/update', 'api\v1\dashboard\DashboardController@updateroom');
+        Route::middleware('auth:api')->put('/layout/update', 'api\v1\dashboard\DashboardController@updatelayout');
+        Route::middleware('auth:api')->get('/room/{id}' ,'api\v1\dashboard\DashboardController@room');
+        Route::middleware('auth:api')->get('/{id}/plattegrond', 'api\v1\dashboard\DashboardController@plattegrond');
+        Route::middleware('auth:api')->post('/{id}/restaurant/update' , 'api\v1\restaurant\RestaurantController@update'); 
+        Route::middleware('auth:api')->post('/{id}/restaurant/primaryimg' , 'api\v1\restaurant\RestaurantController@uploadprimaryImg');
+        Route::middleware('auth:api')->post('/{id}/restaurant/uploadimages' , 'api\v1\restaurant\RestaurantController@uploadImages');
+        Route::middleware('auth:api')->post('/{id}/restaurant/deleteimage' , 'api\v1\restaurant\RestaurantController@deleteImage');
+        Route::middleware('auth:api')->get('/{id}/rooms/active', 'api\v1\dashboard\DashboardController@getActiveRooms');
 });
 
 Route::prefix('/layout')->group(function(){
 
     Route::get('/all', 'api\v1\layout\LayoutController@index');
     Route::get('/{id}', 'api\v1\layout\LayoutController@show');
-    Route::get('/id/{id}', 'api\v1\layout\LayoutController@specific');
-    Route::delete('/{id}/delete', 'api\v1\layout\LayoutController@destroy');
-    Route::post('/store', 'api\v1\layout\LayoutController@store');
+    Route::middleware('auth:api')->get('/id/{id}', 'api\v1\layout\LayoutController@specific');
+    Route::middleware('auth:api')->delete('/{id}/delete', 'api\v1\layout\LayoutController@destroy');
+    Route::middleware('auth:api')->post('/store', 'api\v1\layout\LayoutController@store');
 });
 
 Route::prefix('/reservation')->group(function(){

@@ -838,7 +838,8 @@ class RestaurantController extends Controller
 
         $restaurant->save();
 
-        return $restaurant;
+        $updaterestaurant = Restaurant::with('facilities')->with('payments')->with('category')->with('price')->findOrFail($request->id);
+        return $updaterestaurant;
 
     }
 

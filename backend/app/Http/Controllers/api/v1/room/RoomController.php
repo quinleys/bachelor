@@ -52,7 +52,7 @@ class RoomController extends Controller
         $room->title = $request->title;
         $room->restaurant_id = $request->restaurant_id;
         $room->user_id = $request->user_id;
-        $room->layout_id = 0;
+        $room->layout_id = null;
         $room->walls = $request->walls;
         $room->active = false;
 

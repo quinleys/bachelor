@@ -149,9 +149,9 @@ class ReservationController extends Controller
         $reservation->delete();
         $user = User::find($reservation->user_id);
         $restaurant = Restaurant::find($reservation->restaurant_id);
-
+        if($user->email){
         Mail::to($user->email)->send(new CancelEmail($user,$reservation,$restaurant));
-
+        }
         if($restaurant->contactemail){
             Mail::to($restaurant->contactemail)->send(new CancelEmail($user,$reservation,$restaurant));
         }

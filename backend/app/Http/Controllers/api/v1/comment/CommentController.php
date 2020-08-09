@@ -30,7 +30,7 @@ class CommentController extends Controller
         ->paginate(9);
         return $result; */
         
-        $results = Comment::where('restaurant_id',$id)->with('user')->paginate(5);
+        $results = Comment::where('restaurant_id',$id)->with('user')->orderBy('id', 'desc')->paginate(5);
 
         return $results;
     }
@@ -60,6 +60,7 @@ class CommentController extends Controller
         $id = $newComment->id;
       $comment = Comment::where('id',$id)->with('user')->get();
       
+
       return $comment;
 
     }

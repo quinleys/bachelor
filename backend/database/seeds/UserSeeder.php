@@ -16,10 +16,10 @@ class UserSeeder extends Seeder
             'name' => 'admin',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('password'),
-            'restaurant_id' => 1
+            
         ]);
         DB::table('users')->insert([
-            'name' => 'Scool',
+            'name' => 'School',
             'email' => 'school@gmail.com',
             'password' => Hash::make('password'),
         ]); 
@@ -73,7 +73,91 @@ class UserSeeder extends Seeder
             'email' => Str::random(10).'@gmail.com',
             'password' => Hash::make('password'),
         ]); 
-    }
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]);         DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]);         DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]);         DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]);         DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]);         DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
+        DB::table('users')->insert([
+            'name' => Str::random(10),
+            'email' => Str::random(10).'@gmail.com',
+            'password' => Hash::make('password'),
+        ]); 
        
     }
 }
