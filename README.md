@@ -1,4 +1,4 @@
-# Bachelorproef 
+# Bachelorproeff 
 
 # Restaurant reservatiesysteem
 
