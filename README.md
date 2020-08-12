@@ -1,8 +1,8 @@
-## Bachelorproef 
+# Bachelorproef 
 
 # Restaurant reservatiesysteem
 
-# Quinten Leysen
+## Quinten Leysen
 
 ## Academiejaar 2019-2020
 ## Artveldehogeschool - Grafische en digitale media
@@ -22,4 +22,16 @@ en dit brengt heel wat frustraties met zich mee. Persoonlijk ga ik ook geregeld 
 en heb ik deze frustraties vanuit de eerste hand beleeft. Zo zijn er verschillende platformen
 en manieren om te reserveren en gebruikt zowat elk restaurant een ander platform.
 Met deze bachelorproef wil ik het proces van het maken van een reservatie optimaliseren.
+
+## Live 
+https://quinten.staging.7.web.codedor.online/
+
+### Backend (Laravel API)
+https://github.com/quinleys/bachelor/tree/master/backend
+
+### Frontend (React)
+https://github.com/quinleys/bachelor-client
+
+### Docs
+https://github.com/quinleys/bachelor/tree/master/docs
 
